@@ -1,0 +1,9 @@
+# Virtual environment & Python artifacts
+.venv/
+__pycache__/
+*.pyc
+
+# Locally archived slide sources — deliberately not published on GitHub
+# (see the Google Slides link in README.md)
+archive/
+*.pptx
