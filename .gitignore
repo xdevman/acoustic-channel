@@ -2,8 +2,17 @@
 .venv/
 __pycache__/
 *.pyc
+messages.txt
 
 # Locally archived slide sources — deliberately not published on GitHub
 # (see the Google Slides link in README.md)
-archive/
+archive/*
+!archive/esp32-draft/
+archive/esp32-draft/*
+!archive/esp32-draft/README.md
+!archive/esp32-draft/draft-original.txt
+!archive/esp32-draft/snippets/
+archive/esp32-draft/snippets/*
+!archive/esp32-draft/snippets/*.ino
+!archive/esp32-draft/snippets/*.py
 *.pptx

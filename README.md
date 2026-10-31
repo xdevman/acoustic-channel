@@ -78,8 +78,10 @@ decodes UTF-8).
 | `receiver.py` | Captures audio, demodulates with FFT, validates the packet and logs to `messages.txt` |
 | `decryptor.py` | Small demo of optional **Fernet** (AES-128-CBC + HMAC-SHA256) payload encryption |
 | `packages.txt` | Pinned Python dependencies |
-| `messages.txt` | Timestamped log of successfully decoded messages |
-| `archive/` | Local-only archive (slide sources). **Not committed** — see `.gitignore` |
+| `messages.txt` | Local timestamped log of successfully decoded messages (generated at runtime; not committed) |
+| `esp32/` | ESP32 receiver sketches and notes on the hardware test snippets; see [`esp32/README.md`](esp32/README.md) |
+| `archive/esp32-draft/` | Preserved ESP32 draft transcript and individually archived code snippets; see its [index](archive/esp32-draft/README.md) |
+| Other `archive/` content | Local-only material such as slide sources; excluded by `.gitignore` |
 
 ---
 
@@ -116,7 +118,7 @@ python3 sender.py "Hello"
 ```
 
 The message is modulated, transmitted, captured by the receiver, verified and
-appended to `messages.txt`:
+appended to the local `messages.txt` log (which is excluded from Git):
 
 ```text
 [2026-10-17 18:18:48]

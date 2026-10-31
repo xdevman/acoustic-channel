@@ -1,0 +1,285 @@
+[10/23/26 12:16 AM] HOW: #include <Wire.h>
+
+int pins[] = {21, 22, 25, 26, 32, 33};
+const int N = 6;
+
+void setup() {
+  Serial.begin(9600);
+  delay(1000);
+}
+
+void loop() {
+  bool found = false;
+  for (int i = 0; i < N; i++) {
+    for (int j = 0; j < N; j++) {
+      if (i == j) continue;
+      Wire.end();
+      Wire.begin(pins[i], pins[j]);
+      for (byte a = 0x3C; a <= 0x3D; a++) {
+        Wire.beginTransmission(a);
+        if (Wire.endTransmission() == 0) {
+          Serial.print("SDA=");
+          Serial.print(pins[i]);
+          Serial.print(" SCL=");
+          Serial.print(pins[j]);
+          Serial.print(" addr=0x");
+          Serial.println(a, HEX);
+          found = true;
+        }
+      }
+    }
+  }
+  if (!found) Serial.println("Nothing found");
+  delay(3000);
+}
+[10/23/26 11:18 AM] HOW: #include <Wire.h>
+
+void setup() {
+  Serial.begin(9600);
+  Wire.begin(25, 26); // SDA, SCL
+  delay(1000);
+}
+
+void loop() {
+  int n = 0;
+  for (byte a = 1; a < 127; a++) {
+    Wire.beginTransmission(a);
+    if (Wire.endTransmission() == 0) {
+      Serial.print("Found 0x");
+      Serial.println(a, HEX);
+      n++;
+    }
+  }
+  if (n == 0) Serial.println("Nothing found");
+  delay(2000);
+}
+[10/23/26 11:25 AM] HOW: void setup() {
+  Serial.begin(9600);
+  pinMode(25, INPUT);
+}
+
+void loop() {
+  Serial.println(digitalRead(25));
+  delay(500);
+}
+[10/23/26 11:27 AM] HOW in reply to HOW:
+> ‎⁨void setup() {   Serial.begin(9600);   pinMode(25, INPUT);...
+تست پین 25 26 با 3v3 که ارتباط داره یا نه
+[10/23/26 11:34 AM] HOW: void setup() {
+  Serial.begin(9600);
+  pinMode(25, INPUT_PULLDOWN);
+  pinMode(26, INPUT_PULLDOWN);
+}
+
+void loop() {
+  Serial.print("25: ");
+  Serial.print(digitalRead(25));
+  Serial.print("  26: ");
+  Serial.println(digitalRead(26));
+  delay(500);
+}
+[10/23/26 11:39 AM] HOW: void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  pinMode(25, OUTPUT); pinMode(26, OUTPUT);
+  pinMode(27, INPUT_PULLDOWN);
+  digitalWrite(25, HIGH); digitalWrite(26, LOW); delay(50);
+  int a = digitalRead(27);
+  digitalWrite(25, LOW); digitalWrite(26, HIGH); delay(50);
+  int b = digitalRead(27);
+  pinMode(25, INPUT); pinMode(26, INPUT);
+  pinMode(27, INPUT_PULLDOWN); delay(50);
+  int c = digitalRead(27);
+  pinMode(27, INPUT_PULLUP); delay(50);
+  int d = digitalRead(27);
+  Serial.printf("a=%d b=%d c=%d d=%d\n", a, b, c, d);
+  delay(1000);
+}
+[10/23/26 12:07 PM] HOW: .
+[10/23/26 12:07 PM] HOW: #include <U8g2lib.h>
+#include <Wire.h>
+
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
+
+void setup() {
+  Wire.begin(25, 26); // SDA, SCL
+  u8g2.begin();
+}
+
+void loop() {
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_ncenB10_tr);
+  u8g2.drawStr(10, 35, "Hello ESP32");
+  u8g2.sendBuffer();
+  delay(1000);
+}
+[10/23/26 12:20 PM] HOW: #include <Wire.h>
+
+void setup() {
+  Serial.begin(9600);
+  Wire.begin(25, 26); // SDA, SCL
+  delay(1000);
+}
+
+void loop() {
+  int n = 0;
+  for (byte a = 1; a < 127; a++) {
+    Wire.beginTransmission(a);
+    if (Wire.endTransmission() == 0) {
+      Serial.print("Found 0x");
+      Serial.println(a, HEX);
+      n++;
+    }
+  }
+  if (n == 0) Serial.println("Nothing found");
+  delay(2000);
+}
+[10/23/26 12:22 PM] HOW: #include <U8g2lib.h>
+#include <Wire.h>
+
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
+
+void setup() {
+  Wire.begin(25, 26); // SDA, SCL
+  u8g2.begin();
+}
+
+void loop() {
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_ncenB10_tr);
+  u8g2.drawStr(10, 35, "Hello ESP32");
+  u8g2.sendBuffer();
+  delay(1000);
+}
+[10/23/26 12:22 PM] HOW: [ Photo ]
+[10/23/26 1:08 PM] HOW: #include <driver/i2s.h>
+
+void setup() {
+  Serial.begin(9600);
+  i2s_config_t cfg = {};
+  cfg.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX);
+  cfg.sample_rate = 16000;
+  cfg.bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT;
+  cfg.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT;
+  cfg.communication_format = I2S_COMM_FORMAT_STAND_I2S;
+  cfg.dma_buf_count = 4;
+  cfg.dma_buf_len = 256;
+  i2s_driver_install(I2S_NUM_0, &cfg, 0, NULL);
+
+  i2s_pin_config_t pins = {};
+  pins.mck_io_num = I2S_PIN_NO_CHANGE;
+  pins.bck_io_num = 32;
+  pins.ws_io_num = 33;
+  pins.data_out_num = I2S_PIN_NO_CHANGE;
+  pins.data_in_num = 27;
+  i2s_set_pin(I2S_NUM_0, &pins);
+}
+
+void loop() {
+  int32_t buf[256];
+  size_t n;
+  i2s_read(I2S_NUM_0, buf, sizeof(buf), &n, portMAX_DELAY);
+  int32_t mx = -2147483647, mn = 2147483647;
+  for (int i = 0; i < n / 4; i++) {
+    int32_t s = buf[i] >> 14;
+    if (s > mx) mx = s;
+    if (s < mn) mn = s;
+  }
+  Serial.println(mx - mn);
+}
+[10/23/26 1:12 PM] HOW: #include <driver/i2s.h>
+
+#define RATE 16000
+#define SECONDS 5
+
+void setup() {
+  Serial.begin(921600);
+  i2s_config_t cfg = {};
+  cfg.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX);
+  cfg.sample_rate = RATE;
+  cfg.bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT;
+  cfg.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT;
+  cfg.communication_format = I2S_COMM_FORMAT_STAND_I2S;
+  cfg.dma_buf_count = 8;
+  cfg.dma_buf_len = 256;
+  i2s_driver_install(I2S_NUM_0, &cfg, 0, NULL);
+
+  i2s_pin_config_t pins = {};
+  pins.mck_io_num = I2S_PIN_NO_CHANGE;
+  pins.bck_io_num = 32;
+  pins.ws_io_num = 33;
+  pins.data_out_num = I2S_PIN_NO_CHANGE;
+  pins.data_in_num = 27;
+  i2s_set_pin(I2S_NUM_0, &pins);
+}
+
+void loop() {
+  if (Serial.available() && Serial.read() == 'R') {
+    Serial.write((const uint8_t*)"AUD0", 4);
+    int32_t buf[256];
+    int16_t out[256];
+    size_t n;
+    long total = (long)RATE * SECONDS;
+    while (total > 0) {
+      i2s_read(I2S_NUM_0, buf, sizeof(buf), &n, portMAX_DELAY);
+      int cnt = n / 4;
+      if (cnt > total) cnt = total;
+      for (int i = 0; i < cnt; i++) {
+        int32_t s = buf[i] >> 14;
+        if (s > 32767) s = 32767;
+        if (s < -32768) s = -32768;
+        out[i] = (int16_t)s;
+      }
+      Serial.write((uint8_t*)out, cnt * 2);
+      total -= cnt;
+    }
+  }
+}
+[10/23/26 1:13 PM] HOW: import serial, wave, sys, time, platform, os
+
+PORT = "COM5"
+RATE, SECONDS = 16000, 5
+
+ser = serial.Serial(PORT, 921600, timeout=3)
+time.sleep(2)
+ser.reset_input_buffer()
+print("Speak now...")
+ser.write(b"R")
+
+hdr = b""
+while hdr != b"AUD0":
+    b = ser.read(1)
+    if not b:
+        sys.exit("No response from ESP32")
+    hdr = (hdr + b)[-4:]
+
+need = RATE * SECONDS * 2
+data = bytearray()
+while len(data) < need:
+    chunk = ser.read(need - len(data))
+    if not chunk:
+        break
+    data += chunk
+ser.close()
+
+with wave.open("record.wav", "wb") as w:
+    w.setnchannels(1)
+    w.setsampwidth(2)
+    w.setframerate(RATE)
+    w.writeframes(bytes(data))
+print("Saved record.wav,", len(data), "bytes")
+
+if platform.system() == "Windows":
+    import winsound
+    winsound.PlaySound("record.wav", winsound.SND_FILENAME)
+elif platform.system() == "Darwin":
+    os.system("afplay record.wav")
+else:
+    os.system("aplay record.wav")
+[10/23/26 1:17 PM] HOW in reply to HOW:
+> ‎⁨import serial, wave, sys, time, platform,...
+[ Photo ]
+
+تست میکروفون
